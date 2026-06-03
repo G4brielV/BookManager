@@ -7,20 +7,14 @@ using Microsoft.AspNetCore.Authorization;
 namespace BookManager.API.Controllers
 {
     [Route("[controller]")]
-    public class AuthController : Controller
+    public class AuthController(IAuthService authService) : Controller
     {
-        private readonly IAuthService _authService;
-
-        public AuthController(IAuthService authService)
-        {
-            _authService = authService;
-        }
 
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterRequest request)
         {
-            Result<RegisterResponse> result = await _authService.Register(request);
+            Result<RegisterResponse> result = await authService.RegisterAsync(request);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
@@ -33,7 +27,7 @@ namespace BookManager.API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
         {
-            Result<LoginResponse> result = await _authService.Login(request);
+            Result<LoginResponse> result = await authService.LoginAsync(request);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
