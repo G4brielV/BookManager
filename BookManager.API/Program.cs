@@ -1,5 +1,7 @@
 using BookManager.API.Data;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
+using BookManager.API.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,9 @@ builder.Services.AddControllers();
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Validator
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
 // DB 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -21,9 +26,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(); 
 }
-
-// COMENTADO: Evita o erro de redirecionamento HTTPS no ambiente local
-// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
