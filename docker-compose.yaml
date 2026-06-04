@@ -22,6 +22,21 @@ services:
         - "5050:80" 
       depends_on:
         - db
+  backend:
+    build: ./BookManager.API
+    container_name: api-bookmanager
+    restart: on-failure
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5123
+      - ConnectionStrings__AppDbConnectionString=server=db;database=book_manager;User=root;Password=SenhaSQL
+      - Jwt__Key=minha-super-chave-secreta-para-token-jwt-2026
+      - Jwt__Issuer=BookManagerAPI
+      - Jwt__Audience=UsuariosBookManagerAPI
+    ports:
+      - "5123:5123"
 
 volumes:
   postgres_data:
