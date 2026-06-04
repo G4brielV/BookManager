@@ -17,6 +17,6 @@ public class BookRequestValidator : AbstractValidator<BookRequest>
 
         RuleFor(x => x.PublishDate)
             .NotEmpty().WithMessage("A data de publicação é obrigatória.")
-            .LessThanOrEqualTo(DateTime.Now).WithMessage("A data de publicação não pode ser no futuro.");
+            .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.Now)).WithMessage("A data de publicação não pode ser no futuro.");
     }
 }
