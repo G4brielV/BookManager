@@ -1,36 +1,81 @@
+using System.Text;
 using BookManager.API.Data;
-using Microsoft.EntityFrameworkCore;
-using FluentValidation;
-using BookManager.API.Validators;
 using BookManager.API.Repositories;
 using BookManager.API.Services;
 using BookManager.API.Services.Impl;
+using BookManager.API.Validators;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Controllers
 builder.Services.AddControllers();
 
-// Swagger
+// Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Insira o token JWT. Exemplo: eyJhbGciOiJIUzI1NiIs..."
+    });
 
-// Validator
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+    });
+});
+
+// Validators
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
-// DB 
+// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbConnectionString")));
 
+// JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+var key = Encoding.ASCII.GetBytes(jwtKey);
 
-// Respositories
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidateLifetime = true
+    };
+});
+
+builder.Services.AddAuthorization();
+
+// Repositories
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-
+builder.Services.AddScoped<IBookService, BookService>();
 
 var app = builder.Build();
 
@@ -40,6 +85,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(); 
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

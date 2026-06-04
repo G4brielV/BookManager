@@ -12,9 +12,9 @@ namespace BookManager.API.Repositories
         Task<Book?> FindByIdAsync(int id, int userId);
         Task<Book?> FindByTitleAsync(string title, int userId);
         // Editar um registro
-        Task<Book> UpdateBookAsync(Book newBook);
+        Task UpdateBookAsync(Book book);
         // Remover um registro
-        Task<bool> DeleteBook(Book book);
+        Task DeleteBookAsync(Book book);
 
     }
 }

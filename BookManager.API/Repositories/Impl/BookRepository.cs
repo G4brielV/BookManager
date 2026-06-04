@@ -21,6 +21,7 @@ public class BookRepository : IBookRepository
         int totalCount = await query.CountAsync();
         // Paginação
         var books = await query
+            .OrderBy(b => b.Title)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -55,15 +56,5 @@ public class BookRepository : IBookRepository
     {
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
-    }
-
-    Task<Book> IBookRepository.UpdateBookAsync(Book newBook)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> DeleteBook(Book book)
-    {
-        throw new NotImplementedException();
     }
 }
