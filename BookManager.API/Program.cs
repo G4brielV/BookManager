@@ -93,4 +93,28 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Aplicar Migrations automaticamente ao subir com docker
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    
+    for (int i = 0; i < 5; i++)
+    {
+        try
+        {
+            var context = services.GetRequiredService<AppDbContext>();
+            context.Database.Migrate();
+            logger.LogInformation("Banco de dados e tabelas criados com sucesso.");
+            break; 
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning($"Tentativa {i + 1}: Banco ainda não disponível. Aguardando...");
+            Thread.Sleep(5000); 
+            if (i == 4) logger.LogError(ex, "Não foi possível conectar ao banco após várias tentativas.");
+        }
+    }
+}
+
 app.Run();
