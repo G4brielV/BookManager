@@ -63,9 +63,14 @@ erDiagram
 ![Swagger](./screenshots/swagger.png) 
 
 
-| Login | Token Use |
-| :---: | :---: |
-| ![Login](./screenshots/login.png) | ![TokenUse](./screenshots/token_use.png) |
+### Login 
+![Login](./screenshots/login.png) 
+
+### Using Token
+![UsingToken](./screenshots/using_token.png) 
+
+### DB: user (encrypted password)
+![EncryptedPassword](./screenshots/encrypted_password.png) 
 
 
 ## Esquema de Testes
