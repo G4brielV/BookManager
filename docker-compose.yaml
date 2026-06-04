@@ -31,7 +31,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5123
-      - ConnectionStrings__AppDbConnectionString=server=db;database=book_manager;User=root;Password=SenhaSQL
+      - ConnectionStrings__AppDbConnectionString=Host=db;Database=book_manager;Username=admin;Password=SenhaSQL
       - Jwt__Key=minha-super-chave-secreta-para-token-jwt-2026
       - Jwt__Issuer=BookManagerAPI
       - Jwt__Audience=UsuariosBookManagerAPI
