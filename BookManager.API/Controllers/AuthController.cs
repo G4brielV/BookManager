@@ -1,38 +1,44 @@
 using Microsoft.AspNetCore.Mvc;
 using BookManager.API.Services;
-using BookManager.API.Services.Impl;
 using BookManager.API.DTOs;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 
-namespace BookManager.API.Controllers
+namespace BookManager.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController(IAuthService authService, IValidator<RegisterRequest> validator) : ControllerBase
 {
-    [Route("[controller]")]
-    public class AuthController(IAuthService authService) : Controller
+
+    [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterRequest request)
     {
-
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterRequest request)
+        var validation = await validator.ValidateAsync(request);
+        if (!validation.IsValid)
         {
-            Result<RegisterResponse> result = await authService.RegisterAsync(request);
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return CreatedAtAction(nameof(Register), new { id = result.Data.Id }, result.Data);
+            return BadRequest(validation.Errors.Select(e => e.ErrorMessage));
         }
 
-        [AllowAnonymous]
-        [HttpPost("login")]
-        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
+        Result<RegisterResponse> result = await authService.RegisterAsync(request);
+        if (!result.IsSuccess)
         {
-            Result<LoginResponse> result = await authService.LoginAsync(request);
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-            return Ok(result.Data);
+            return BadRequest(result.Error);
         }
+
+        return CreatedAtAction(nameof(Register), new { id = result.Data!.Id }, result.Data);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
+    {
+        Result<LoginResponse> result = await authService.LoginAsync(request);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.Error);
+        }
+        return Ok(result.Data);
     }
 }
