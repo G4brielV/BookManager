@@ -1,6 +1,6 @@
 using BookManager.API.DTOs;
 
-namespace BookManager.API.Services.Impl
+namespace BookManager.API.Services
 {
     public interface IAuthService
     {

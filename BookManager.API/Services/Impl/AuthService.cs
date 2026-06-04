@@ -2,6 +2,7 @@ using BookManager.API.DTOs;
 using BookManager.API.Mappings;
 using BookManager.API.Models;
 using BookManager.API.Repositories;
+using BookManager.API.Services;
 
 namespace BookManager.API.Services.Impl
 
