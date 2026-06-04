@@ -77,6 +77,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IBookService, BookService>();
 
+// Forçando letra minuscula nas URLs
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
